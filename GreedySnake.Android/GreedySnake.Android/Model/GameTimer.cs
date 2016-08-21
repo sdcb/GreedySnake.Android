@@ -35,5 +35,10 @@ namespace GreedySnake.Android.Model
 			Interval = interval;
 			watch.Start();
 		}
+
+		public void Restart()
+		{
+			watch.Restart();
+		}
 	}
 }

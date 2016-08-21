@@ -121,6 +121,7 @@ namespace GreedySnake.Android
 		{
 			var rectWidth = (float)Width / game.Bound.X;
 			var rectHeight = ((float)Height - 20) / game.Bound.Y;
+			var gap = rectWidth / 20;
 
 			var snakeColor = Color.Red;
 			var foodColor = Color.Blue;
@@ -129,13 +130,13 @@ namespace GreedySnake.Android
 			FillRect(0, 0,
 				game.Bound.X * rectWidth,
 				game.Bound.Y * rectHeight, backgroundColor);
-
+			
 			game.Snake.Body.ForEach(v =>
 			{
 				FillRect(
-					v.X * rectWidth,
-					v.Y * rectHeight,
-					rectWidth, rectHeight, snakeColor);
+					v.X * rectWidth + gap,
+					v.Y * rectHeight + gap,
+					rectWidth - gap, rectHeight - gap, snakeColor);
 			});
 
 			FillRect(

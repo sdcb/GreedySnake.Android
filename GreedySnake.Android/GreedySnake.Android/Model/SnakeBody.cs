@@ -20,7 +20,13 @@ namespace GreedySnake.Android.Model
 
 		public IEnumerable<Vector2D> HeadToTail() => this;
 
-		public IEnumerable<Vector2D> TailToHead() => this.Reverse<Vector2D>();
+		public IEnumerable<Vector2D> HeadToTailSkip1()
+		{
+			for (var i = 0; i < Count - 1; ++i)
+			{
+				yield return this[i];
+			}
+		}
 
 		public SnakeBody Clone()
 		{
@@ -29,10 +35,8 @@ namespace GreedySnake.Android.Model
 
 		public SnakeBody By(Direction direction)
 		{
-			var resultSnakeBody = HeadToTail().Skip(1).Concat(new[]
-				{
-					NextHead(direction)
-				});
+			var nextHead = NextHead(direction);
+			var resultSnakeBody = new[] { nextHead }.Concat(HeadToTailSkip1());
 			return new SnakeBody(resultSnakeBody);
 		}
 

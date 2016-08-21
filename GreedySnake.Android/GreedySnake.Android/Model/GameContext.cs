@@ -24,7 +24,7 @@ namespace GreedySnake.Android.Model
 
 		public bool GameRunning => !GameOver;
 
-		public GameTimer Timer = new GameTimer(500);
+		public GameTimer Timer = new GameTimer(300);
 
 		public void Update()
 		{
@@ -49,6 +49,7 @@ namespace GreedySnake.Android.Model
 			}
 
 			Move(Snake.Body, requestedDirection);
+			Timer.Restart();
 		}
 
 		private void Move(SnakeBody snakeBody, Direction direction)
