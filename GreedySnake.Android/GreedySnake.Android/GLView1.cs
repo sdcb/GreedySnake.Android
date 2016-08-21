@@ -7,6 +7,7 @@ using OpenTK.Platform.Android;
 using Android.Views;
 using Android.Content;
 using Android.Util;
+using System.Drawing;
 
 namespace GreedySnake.Android
 {
@@ -73,35 +74,43 @@ namespace GreedySnake.Android
 
 			GL.MatrixMode(All.Projection);
 			GL.LoadIdentity();
-			GL.Ortho(-1.0f, 1.0f, -1.5f, 1.5f, -1.0f, 1.0f);
-			GL.MatrixMode(All.Modelview);
-			GL.Rotate(3.0f, 0.0f, 0.0f, 1.0f);
+			GL.Ortho(0, Width, Height, 0, -1, 1);
+			GL.Viewport(0, 0, Width, Height);
 
 			GL.ClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 			GL.Clear((uint)All.ColorBufferBit);
 
-			GL.VertexPointer(2, All.Float, 0, square_vertices);
 			GL.EnableClientState(All.VertexArray);
-			GL.ColorPointer(4, All.UnsignedByte, 0, square_colors);
 			GL.EnableClientState(All.ColorArray);
 
-			GL.DrawArrays(All.TriangleStrip, 0, 4);
+			FillRect(50, 50, 50, 50, Color.Red);
+			FillRect(50, 100, 50, 50, Color.NavajoWhite);
+			FillRect(50, 150, 50, 50, Color.Yellow);
 
 			SwapBuffers();
 		}
 
-		float[] square_vertices = {
-			-0.5f, -0.5f,
-			0.5f, -0.5f,
-			-0.5f, 0.5f,
-			0.5f, 0.5f,
-		};
+		public static void FillRect(float x, float y, float width, float height, Color color)
+		{
+			var vertices = new[]
+			{
+				x, y, 
+				x + width, y, 
+				x, y + height, 
+				x + width, y + height
+			};
+			var colors = new []
+			{
+				color.R, color.G, color.B, color.A,
+				color.R, color.G, color.B, color.A,
+				color.R, color.G, color.B, color.A,
+				color.R, color.G, color.B, color.A,
+			};
+			GL.VertexPointer(2, All.Float, 0, vertices);			
+			GL.ColorPointer(4, All.UnsignedByte, 0, colors);
+			
 
-		byte[] square_colors = {
-			255, 255,   0, 255,
-			0,   255, 255, 255,
-			0,     0,    0,  0,
-			255,   0,  255, 255,
-		};
+			GL.DrawArrays(All.TriangleStrip, 0, 4);
+		}
 	}
 }
