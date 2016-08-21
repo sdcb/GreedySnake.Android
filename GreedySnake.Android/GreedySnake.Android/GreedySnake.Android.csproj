@@ -53,11 +53,13 @@
     <Compile Include="GLView1.cs" />
     <Compile Include="Model\Direction.cs" />
     <Compile Include="Model\GameContext.cs" />
+    <Compile Include="Model\GameTimer.cs" />
     <Compile Include="Model\Vector2D.cs" />
     <Compile Include="Model\Snake.cs" />
     <Compile Include="Model\SnakeBody.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SwipeDetector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GettingStarted.Xamarin" />

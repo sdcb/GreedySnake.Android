@@ -24,14 +24,16 @@ namespace GreedySnake.Android.Model
 
 		public bool GameRunning => !GameOver;
 
-		public void Tick()
+		public GameTimer Timer = new GameTimer(500);
+
+		public void Update()
 		{
 			if (GameOver)
 			{
 				return;
 			}
 
-			Move(Snake.Body, Snake.Direction);
+			Timer.Update();
 		}
 
 		public void RequestDirection(Direction requestedDirection)
@@ -75,11 +77,17 @@ namespace GreedySnake.Android.Model
 			FoodPosition = Details.RandomAvailablePoints(Bound, Snake.Body);
 		}
 
-		public GameContext(int width = 10, int height = 20)
+		public GameContext(int width = 10, int height = 15)
 		{
 			Bound.X = width;
 			Bound.Y = height;
 			PrepairNextFood();
+			Timer.Tick += Timer_Tick;
+		}
+
+		private void Timer_Tick(object sender, EventArgs e)
+		{
+			Move(Snake.Body, Snake.Direction);
 		}
 
 		public static class Details

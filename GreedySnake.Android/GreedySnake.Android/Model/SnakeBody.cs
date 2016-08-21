@@ -38,8 +38,7 @@ namespace GreedySnake.Android.Model
 
 		public Vector2D NextHead(Direction direction)
 		{
-			var directionOffset = Details.GetDirectionOffset(direction);
-			return Head().By(directionOffset);
+			return Head().ByDirection(direction);
 		}
 
 		public SnakeBody GrowAtDirection(Direction direction)
@@ -76,22 +75,10 @@ namespace GreedySnake.Android.Model
 
 		public static class Details
 		{
-			public static Vector2D GetDirectionOffset(Direction direction)
-			{
-				var offsetMap = new Dictionary<Direction, Vector2D>
-				{
-					{ Direction.Top, new Vector2D(-1, 0) },
-					{ Direction.Down, new Vector2D(1, 0) },
-					{ Direction.Left, new Vector2D(0, -1) },
-					{ Direction.Right, new Vector2D(0, 1) },
-				};
-				return offsetMap[direction];
-			}
-
 			public static bool IsSnakeHitSelf(SnakeBody snakeBody)
 			{
 				var head = snakeBody.Head();
-				var bodyExcepHead = snakeBody.HeadToTail().Skip(0);
+				var bodyExcepHead = snakeBody.HeadToTail().Skip(1);
 				return bodyExcepHead.Any(bodyPart => bodyPart == head);
 			}
 		}

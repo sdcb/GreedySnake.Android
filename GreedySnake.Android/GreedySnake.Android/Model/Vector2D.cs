@@ -1,4 +1,6 @@
-﻿namespace GreedySnake.Android.Model
+﻿using System.Collections.Generic;
+
+namespace GreedySnake.Android.Model
 {
 	public struct Vector2D
 	{
@@ -24,6 +26,18 @@
 				Y >= 0 && Y < bound.Y;
 		}
 
+		public Vector2D ByDirection(Direction direction)
+		{
+			var offsetMap = new Dictionary<Direction, Vector2D>
+				{
+					{ Direction.Top, new Vector2D(0, -1) },
+					{ Direction.Down, new Vector2D(0, 1) },
+					{ Direction.Left, new Vector2D(-1, 0) },
+					{ Direction.Right, new Vector2D(1, 0) },
+				};
+			return By(offsetMap[direction]);
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (!(obj is Vector2D))
@@ -39,13 +53,13 @@
 			return X.GetHashCode() ^ Y.GetHashCode();
 		}
 
-		public static bool operator==(Vector2D left, Vector2D right)
+		public static bool operator ==(Vector2D left, Vector2D right)
 		{
 			return left.X == right.X &&
 				left.Y == right.Y;
 		}
 
-		public static bool operator!=(Vector2D left, Vector2D right)
+		public static bool operator !=(Vector2D left, Vector2D right)
 		{
 			return !(left == right);
 		}

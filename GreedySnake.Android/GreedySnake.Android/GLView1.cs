@@ -8,20 +8,48 @@ using Android.Views;
 using Android.Content;
 using Android.Util;
 using System.Drawing;
+using GreedySnake.Android.Model;
+using System.Timers;
+using Android.Runtime;
+using System.Collections.Generic;
 
 namespace GreedySnake.Android
 {
 	class GLView1 : AndroidGameView
 	{
+		GameContext game = new GameContext();
+		SwipeDetector swipe = new SwipeDetector();
+
 		public GLView1(Context context) : base(context)
 		{
+			swipe.Swipped += Swipe_Swipped;
+		}
+
+		private void Swipe_Swipped(SwipeDetector sender, SwipeTypes swipeType)
+		{
+			Log.Info(nameof(Swipe_Swipped), swipeType.ToString());
+			var directionMap = new Dictionary<SwipeTypes, Direction>
+			{
+				{ SwipeTypes.TopToBottom, Direction.Down },
+				{ SwipeTypes.RightToLeft, Direction.Left },
+				{ SwipeTypes.BottomToTop, Direction.Top },
+				{ SwipeTypes.LeftToRight, Direction.Right },
+			};
+			var direction = directionMap[swipeType];
+			game.RequestDirection(direction);
+		}
+
+		public override bool OnTouchEvent(MotionEvent e)
+		{
+			Log.Info(nameof(OnTouchEvent), e.ToString());
+			return swipe.OnTouch(e);
 		}
 
 		// This gets called when the drawing surface is ready
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-
+			
 			// Run the render loop
 			Run();
 		}
@@ -71,44 +99,70 @@ namespace GreedySnake.Android
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
 			base.OnRenderFrame(e);
+			game.Update();
 
 			GL.MatrixMode(All.Projection);
 			GL.LoadIdentity();
 			GL.Ortho(0, Width, Height, 0, -1, 1);
 			GL.Viewport(0, 0, Width, Height);
 
-			GL.ClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+			GL.ClearColor(1, 1, 1, 1.0f);
 			GL.Clear((uint)All.ColorBufferBit);
 
 			GL.EnableClientState(All.VertexArray);
 			GL.EnableClientState(All.ColorArray);
 
-			FillRect(50, 50, 50, 50, Color.Red);
-			FillRect(50, 100, 50, 50, Color.NavajoWhite);
-			FillRect(50, 150, 50, 50, Color.Yellow);
+			RenderGame();
 
 			SwapBuffers();
+		}
+
+		private void RenderGame()
+		{
+			var rectWidth = (float)Width / game.Bound.X;
+			var rectHeight = ((float)Height - 20) / game.Bound.Y;
+
+			var snakeColor = Color.Red;
+			var foodColor = Color.Blue;
+			var backgroundColor = Color.Gray;
+
+			FillRect(0, 0,
+				game.Bound.X * rectWidth,
+				game.Bound.Y * rectHeight, backgroundColor);
+
+			game.Snake.Body.ForEach(v =>
+			{
+				FillRect(
+					v.X * rectWidth,
+					v.Y * rectHeight,
+					rectWidth, rectHeight, snakeColor);
+			});
+
+			FillRect(
+				game.FoodPosition.X * rectWidth,
+				game.FoodPosition.Y * rectHeight,
+				rectWidth, rectHeight, foodColor);
 		}
 
 		public static void FillRect(float x, float y, float width, float height, Color color)
 		{
 			var vertices = new[]
 			{
-				x, y, 
-				x + width, y, 
-				x, y + height, 
+				x, y,
+				x + width, y,
+				x, y + height,
 				x + width, y + height
 			};
-			var colors = new []
+			var colors = new[]
 			{
 				color.R, color.G, color.B, color.A,
 				color.R, color.G, color.B, color.A,
 				color.R, color.G, color.B, color.A,
 				color.R, color.G, color.B, color.A,
 			};
-			GL.VertexPointer(2, All.Float, 0, vertices);			
+			GL.VertexPointer(2, All.Float, 0, vertices);
 			GL.ColorPointer(4, All.UnsignedByte, 0, colors);
-			
+
 
 			GL.DrawArrays(All.TriangleStrip, 0, 4);
 		}
