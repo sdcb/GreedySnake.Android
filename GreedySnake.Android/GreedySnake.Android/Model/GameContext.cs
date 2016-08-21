@@ -18,7 +18,7 @@ namespace GreedySnake.Android.Model
 
 		public Snake Snake { get; set; } = new Snake();
 
-		public Vector2D Food { get; set; }
+		public Vector2D FoodPosition { get; set; }
 
 		public bool GameOver { get; set; } = false;
 
@@ -31,14 +31,7 @@ namespace GreedySnake.Android.Model
 				return;
 			}
 
-			var nextSnake = Details.GetByDirectionSnake(Snake.Body, Snake.Direction);
-			if (!nextSnake.Body.IsAlive(Bound))
-			{
-				GameOver = true;
-				return;
-			}
-
-			Snake = nextSnake;
+			Move(Snake.Body, Snake.Direction);
 		}
 
 		public void RequestDirection(Direction requestedDirection)
@@ -53,21 +46,40 @@ namespace GreedySnake.Android.Model
 				return;
 			}
 
-			var nextSnake = Details.GetByDirectionSnake(Snake.Body, requestedDirection);
-			if (!nextSnake.Body.IsAlive(Bound))
-			{
-				GameOver = true;
-				return;
-			}
-
-			Snake = nextSnake;
+			Move(Snake.Body, requestedDirection);
 		}
 
+		private void Move(SnakeBody snakeBody, Direction direction)
+		{
+			var nextHeadPosition = snakeBody.NextHead(direction);
+			if (nextHeadPosition == FoodPosition)
+			{
+				Snake = Details.GetEatedGrowedSnake(snakeBody, direction);
+				PrepairNextFood();
+			}
+			else
+			{
+				var nextSnake = Details.GetByDirectionSnake(snakeBody, direction);
+				if (!nextSnake.Body.IsAlive(Bound))
+				{
+					GameOver = true;
+					return;
+				}
+
+				Snake = nextSnake;
+			}
+		}
+
+		private void PrepairNextFood()
+		{
+			FoodPosition = Details.RandomAvailablePoints(Bound, Snake.Body);
+		}
 
 		public GameContext(int width = 10, int height = 20)
 		{
 			Bound.X = width;
 			Bound.Y = height;
+			PrepairNextFood();
 		}
 
 		public static class Details
@@ -90,6 +102,34 @@ namespace GreedySnake.Android.Model
 			{
 				var nextBody = currentSnakeBody.By(direction);
 				return new Snake(direction, nextBody);
+			}
+
+			public static Snake GetEatedGrowedSnake(SnakeBody currentSnakeBody, Direction direction)
+			{
+				var nextBody = currentSnakeBody.GrowAtDirection(direction);
+				return new Snake(direction, nextBody);
+			}
+
+			public static IEnumerable<Vector2D> AvailableBlocks(Vector2D bound, SnakeBody snakeBody)
+			{
+				for (var x = 0; x < bound.X; ++x)
+				{
+					for (var y = 0; y < bound.Y; ++y)
+					{
+						var point = new Vector2D(x, y);
+						if (!snakeBody.Contains(point))
+						{
+							yield return point;
+						}
+					}
+				}
+			}
+
+			public static Vector2D RandomAvailablePoints(Vector2D bound, SnakeBody snakeBody)
+			{
+				var allBlocks = AvailableBlocks(bound, snakeBody).ToList();
+				var r = new Random();
+				return allBlocks[r.Next(0, allBlocks.Count)];
 			}
 		}
 	}

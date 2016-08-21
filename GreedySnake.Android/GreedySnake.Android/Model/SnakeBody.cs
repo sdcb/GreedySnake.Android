@@ -29,11 +29,23 @@ namespace GreedySnake.Android.Model
 
 		public SnakeBody By(Direction direction)
 		{
-			var directionOffset = Details.GetDirectionOffset(direction);
 			var resultSnakeBody = HeadToTail().Skip(1).Concat(new[]
 				{
-					Tail().By(directionOffset)
+					NextHead(direction)
 				});
+			return new SnakeBody(resultSnakeBody);
+		}
+
+		public Vector2D NextHead(Direction direction)
+		{
+			var directionOffset = Details.GetDirectionOffset(direction);
+			return Head().By(directionOffset);
+		}
+
+		public SnakeBody GrowAtDirection(Direction direction)
+		{
+			var nextHead = NextHead(direction);
+			var resultSnakeBody = new[] { nextHead }.Concat(HeadToTail());
 			return new SnakeBody(resultSnakeBody);
 		}
 
